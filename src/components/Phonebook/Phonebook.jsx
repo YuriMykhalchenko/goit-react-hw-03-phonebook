@@ -7,6 +7,7 @@ import { WrapperPhonebook, WrapperContacts } from './Phonebook.styled';
 import { ContactForm } from '../ContactForm/ContactForm';
 import { ContactsList } from '../ContactsList/ContactsList';
 import { Filter } from '../Filter/Filter';
+import { nanoid } from 'nanoid';
 
 export class Phonebook extends Component {
   static defaultPropTypes = {
@@ -18,6 +19,20 @@ export class Phonebook extends Component {
     contacts: this.props.initialContacts,
     filter: this.props.initialFilter,
   };
+  componentDidMount() {
+    const contacts = localStorage.getItem('contacts');
+    const parsedContacts = JSON.parse(contacts);
+    if (parsedContacts) {
+      this.setState({ contacts: parsedContacts });
+    }
+  }
+
+  componentDidUpdate(prevState) {
+    const currentContacts = this.state.contacts;
+    if (currentContacts !== prevState.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(currentContacts));
+    }
+  }
 
   addContacts = ({ id, name, number }) => {
     const isFindName = this.state.contacts.find(
@@ -28,7 +43,7 @@ export class Phonebook extends Component {
       Notification(name);
       return;
     }
-
+    id = nanoid(4);
     this.setState(({ contacts }) => ({
       contacts: [...contacts, { id, name, number }],
     }));
